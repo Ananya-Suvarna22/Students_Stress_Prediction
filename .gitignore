@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# TensorFlow models
+*.h5
+
+# Dataset
+dataset/
+
+# Database
+*.db
+
+# VS Code
+.vscode/
+
+# Environment
+venv/
+env/
+
+# Logs
+*.log
+
+__pycache__/
+*.pyc
+*.db
+.streamlit/
+.idea/
