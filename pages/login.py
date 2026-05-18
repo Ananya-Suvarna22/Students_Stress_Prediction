@@ -1,28 +1,53 @@
 import streamlit as st
+import bcrypt
 from database.db import cursor
 
-st.title("🔐 Login")
 
-username = st.text_input("Username")
-password = st.text_input("Password", type="password")
+def run():
 
-if st.button("Login"):
+    st.subheader("🔐 Login to Your Account")
 
-    cursor.execute(
-        "SELECT * FROM users WHERE username=? AND password=?",
-        (username, password)
-    )
+    username = st.text_input("👤 Username")
+    password = st.text_input("🔒 Password", type="password")
 
-    user = cursor.fetchone()
+    if st.button("🚀 Login"):
 
-    if user:
-        st.success("Login Successful")
+        if username.strip() == "" or password.strip() == "":
+            st.warning("⚠ Please fill all fields")
+            return
 
-        st.session_state["user"] = username
+        try:
+            # ---------------- FETCH USER ----------------
+            cursor.execute(
+                "SELECT password FROM users WHERE username=?",
+                (username,)
+            )
 
-        st.session_state["questionnaire_done"] = False
+            result = cursor.fetchone()
 
-        st.session_state["face_done"] = False
+            if result is None:
+                st.error("❌ Invalid username or password")
+                return
 
-    else:
-        st.error("Invalid Username or Password")
+            stored_password = result[0]
+
+            # ---------------- BCRYPT CHECK ----------------
+            if bcrypt.checkpw(password.encode(), stored_password):
+
+                st.success("✅ Login Successful")
+
+                st.session_state["user"] = username
+                st.session_state["questionnaire_done"] = False
+                st.session_state["face_done"] = False
+
+                import time
+                time.sleep(1)
+
+                st.rerun()
+
+            else:
+                st.error("❌ Invalid username or password")
+
+        except Exception as e:
+            st.error("⚠ Database error occurred")
+            st.exception(e)
